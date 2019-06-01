@@ -426,16 +426,6 @@ void visualstudio::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     }
   }
 
-  // Add Fortran runtime libraries
-  if (needFortranLibs(TC.getDriver(), Args)) {
-    TC.AddFortranStdlibLibArgs(Args, CmdArgs);
-  } else {
-  // Claim "no Flang libraries" arguments if any
-    for (auto Arg : Args.filtered(options::OPT_noFlangLibs)) {
-      Arg->claim();
-    }
-  }
-
   // Add compiler-rt lib in case if it was explicitly
   // specified as an argument for --rtlib option.
   if (!Args.hasArg(options::OPT_nostdlib)) {
@@ -767,32 +757,48 @@ void MSVCToolChain::AddFortranStdlibLibArgs(const ArgList &Args,
       useOpenMP = true;
   }
 
-  CmdArgs.push_back(Args.MakeArgString(std::string("-libpath:") +
+  CmdArgs.push_back("-linker");
+  CmdArgs.push_back(Args.MakeArgString(std::string("/libpath:") +
                                        getDriver().Dir + "/../lib"));
 
   if (needFortranMain(getDriver(), Args)) {
     // flangmain is always static
-    CmdArgs.push_back("-subsystem:console");
-    CmdArgs.push_back("-defaultlib:flangmain");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/subsystem:console");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:flangmain.lib");
   }
 
   if (staticFlangLibs) {
-    CmdArgs.push_back("-defaultlib:libflang");
-    CmdArgs.push_back("-defaultlib:libflangrti");
-    CmdArgs.push_back("-defaultlib:libpgmath");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:libflang.lib");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:libflangrti.lib");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:libpgmath.lib");
   } else {
-    CmdArgs.push_back("-defaultlib:flang");
-    CmdArgs.push_back("-defaultlib:flangrti");
-    CmdArgs.push_back("-defaultlib:pgmath");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:flang.lib");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:flangrti.lib");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:pgmath.lib");
   }
   if (useOpenMP) {
-    // openmp is added in ConstructJob
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/nodefaultlib:vcomp.lib");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/nodefaultlib:vcompd.lib");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:libomp.lib");
   }
   else {
     if (staticFlangLibs) {
-      CmdArgs.push_back("-defaultlib:libompstub");
+      CmdArgs.push_back("-linker");
+      CmdArgs.push_back("/defaultlib:libompstub.lib");
     } else {
-      CmdArgs.push_back("-defaultlib:ompstub");
+      CmdArgs.push_back("-linker");
+      CmdArgs.push_back("/defaultlib:ompstub.lib");
     }
   }
 
@@ -805,11 +811,14 @@ void MSVCToolChain::AddFortranStdlibLibArgs(const ArgList &Args,
   // dependency tracking. Let's assume that if somebody needs
   // static flang libs, they need static runtime libs as well.
   if (staticFlangLibs) {
-    CmdArgs.push_back("-defaultlib:libcmt");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:libcmt.lib");
   } else {
-    CmdArgs.push_back("-defaultlib:msvcrt");
+    CmdArgs.push_back("-linker");
+    CmdArgs.push_back("/defaultlib:msvcrt.lib");
   }
-  CmdArgs.push_back("-defaultlib:oldnames");
+  CmdArgs.push_back("-linker");
+  CmdArgs.push_back("/defaultlib:oldnames.lib");
 
 }
 
