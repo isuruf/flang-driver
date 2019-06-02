@@ -817,9 +817,6 @@ void MSVCToolChain::AddFortranStdlibLibArgs(const ArgList &Args,
     CmdArgs.push_back("-linker");
     CmdArgs.push_back("/defaultlib:msvcrt.lib");
   }
-  CmdArgs.push_back("-linker");
-  CmdArgs.push_back("/defaultlib:oldnames.lib");
-
 }
 
 void MSVCToolChain::printVerboseInfo(raw_ostream &OS) const {
