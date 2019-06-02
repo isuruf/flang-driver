@@ -426,6 +426,11 @@ void visualstudio::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     }
   }
 
+  if (C.getDriver().IsFortranMode()) {
+    CmdArgs.push_back(Args.MakeArgString(std::string("-libpath:") +
+                                         TC.getDriver().Dir + "/../lib"));
+  }
+
   // Add compiler-rt lib in case if it was explicitly
   // specified as an argument for --rtlib option.
   if (!Args.hasArg(options::OPT_nostdlib)) {
@@ -756,10 +761,6 @@ void MSVCToolChain::AddFortranStdlibLibArgs(const ArgList &Args,
        A->getOption().matches(options::OPT_fopenmp))) {
       useOpenMP = true;
   }
-
-  CmdArgs.push_back("-linker");
-  CmdArgs.push_back(Args.MakeArgString(std::string("/libpath:") +
-                                       getDriver().Dir + "/../lib"));
 
   if (needFortranMain(getDriver(), Args)) {
     // flangmain is always static

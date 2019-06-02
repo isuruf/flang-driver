@@ -1053,9 +1053,9 @@ if(Args.getAllArgValues(options::OPT_fopenmp_targets_EQ).size() > 0) {
   bool IsWindowsMSVC = getToolChain().getTriple().isWindowsMSVCEnvironment();
   if (IsWindowsMSVC && !Args.hasArg(options::OPT_noFlangLibs)) {
     getToolChain().AddFortranStdlibLibArgs(Args, LowerCmdArgs);
-  }
-  for (auto Arg : Args.filtered(options::OPT_noFlangLibs)) {
-    Arg->claim();
+    for (auto Arg : Args.filtered(options::OPT_noFlangLibs)) {
+      Arg->claim();
+    }
   }
 
   C.addCommand(llvm::make_unique<Command>(JA, *this, LowerExec, LowerCmdArgs, Inputs));
