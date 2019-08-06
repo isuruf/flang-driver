@@ -68,5 +68,6 @@ add_clang_library(clangDriver
 
   LINK_LIBS
   clangBasic
+  clangFrontend
   ${system_libs}
   )
